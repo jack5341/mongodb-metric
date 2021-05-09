@@ -1,32 +1,18 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const dotenv = require("dotenv");
-const path = require("path");
 const app = express();
 
-dotenv.config();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "view"));
+// You should GET with http://localhost:3000/?string=mongodb+srv://admin:admin@your-db.dbdbdb.mongodb.net/DB-NAME?retryWrites=true&w=majority&db=DB_NAME
 
-app.get("/", async (req, res) => {
-  res.render("index")
-})
-
-app.post("/", (req,res) => {
+app.get("/", (req, res) => {
   const MongoClient = require("mongodb").MongoClient;
-  const queryDBString = req.body.db_string;
-  const dbName = req.body.db_name;
-  
+  const queryDBString = req.query.string;
+  const dbName = req.query.db;
+
   if (queryDBString && dbName) {
-    const client = new MongoClient(
-      queryDBString,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }
-    );
+    const client = new MongoClient(queryDBString, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     client.connect(async () => {
       const collection = await client.db(dbName).stats();
       res.json({
@@ -36,7 +22,7 @@ app.post("/", (req,res) => {
       client.close();
     });
   }
-})
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT);
