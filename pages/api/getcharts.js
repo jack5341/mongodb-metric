@@ -7,9 +7,7 @@ export default (req, res) => {
       useUnifiedTopology: true,
     });
     client.connect(async () => {
-      const collection = await client.db(req.body.db_name).stats();
-      res.send(collection)
-      client.close();
+      res.send(await client.db(req.body.db_name).stats());
     });
   }
 };

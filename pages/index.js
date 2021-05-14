@@ -1,5 +1,7 @@
+import { useRouter } from 'next/router'
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import jwt from "jsonwebtoken"
 import axios from "axios";
 
 const SignupSchema = Yup.object().shape({
@@ -12,12 +14,18 @@ const SignupSchema = Yup.object().shape({
 });
 
 export default function Home() {
+  const router = useRouter()
+
   function sendToAPI(data) {
+    document.getElementById("submit_btn").style.display = "none";
+
     axios({
       url: "/api/getcharts",
       method: "POST",
       data: data,
-    }).then(res => console.log(res.data))
+    })
+      .then((res) => router.push('/metrics?token=' + jwt.sign(res.data, "shhhhh")))
+      .catch((err) => console.log(err));
   }
 
   return (
@@ -27,7 +35,7 @@ export default function Home() {
           src="https://webassets.mongodb.com/_com_assets/cms/MongoDB_Logo_FullColorBlack_RGB-4td3yuxzjs.png"
           style={{ height: "8rem" }}
         />
-        <p className="text-8xl pt-5 ml-7 font-normal">Metric</p>
+        <p className="text-8xl pt-5 ml-7 font-normal">metrics</p>
       </div>
       <div className="flex flex-col mt-5">
         <Formik
@@ -56,6 +64,7 @@ export default function Home() {
                 className="shadow border-2 p-3 border-green-600 rounded mr-2 w-96 focus:outline-none"
               />
               <button
+                id="submit_btn"
                 className="p-3 bg-green-600 rounded text-white mt-5 w-11/12 focus:outline-none hover:bg-green-700 uppercase font-bold"
                 type="submit"
               >
